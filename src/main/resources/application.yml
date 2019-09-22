@@ -1,0 +1,47 @@
+server:
+  port: 8089
+  #tomcat uri����
+  tomcat:
+    uri-encoding: UTF-8
+  servlet:
+    context-path: /star
+#mybatis
+mybatis:
+  type-aliases-package: com.satr.starxin.pojo
+  mapper-locations: classpath:mapper/*
+mapper:
+  identity: MYSQL
+  mappers: com.star.starxin.utils.MyMapper
+#  ��ҳ�������
+pagehelper:
+  helper-dialect: mysql
+  support-methods-arguments: true
+  params: count=countSql
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/star_chat?serverTimezone=UTC
+    username: root
+    password: 123456
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      connection-timeout: 30000
+      minimum-idle: 5
+      maximum-pool-size: 15
+      auto-commit: true
+      idle-timeout: 600000
+      pool-name: DatebookHikariCP
+      connection-test-query: SELECT 1
+      max-lifetime: 28740000
+# ===================================================================
+# 分布式文件系统FDFS配置
+# ===================================================================
+fdfs:
+  so-timeout: 1501
+  connect-timeout: 601
+  thumb-image:             #缩略图生成参数
+    width: 80
+    height: 80
+  tracker-list:
+    - 39.108.153.198:22122
+#  tracker-list: 39.108.153.198:22122
