@@ -1,16 +1,15 @@
 package com.star.starxin.controller.user;
 
 import com.alibaba.fastjson.JSON;
+import com.star.starxin.enums.SearchFriendsStatusEnum;
 import com.star.starxin.pojo.Users;
 import com.star.starxin.pojo.bo.UsersBO;
 import com.star.starxin.pojo.vo.UsersVO;
 import com.star.starxin.service.UserService;
-import com.star.starxin.utils.FastDFSClient;
-import com.star.starxin.utils.FileUtils;
-import com.star.starxin.utils.MD5Utils;
-import com.star.starxin.utils.StarJSONResult;
+import com.star.starxin.utils.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -123,5 +122,53 @@ public class UserController {
             e.printStackTrace();
             return StarJSONResult.errorMsg("修改失败");
         }
+    }
+    @RequestMapping("/searchFriends")
+    public StarJSONResult searchFriend(String userId, String friendUsername) {
+        // 0. 判断 myUserId friendUsername 不能为空
+        if (StringUtils.isBlank(userId)
+                || StringUtils.isBlank(friendUsername)) {
+            return StarJSONResult.errorMsg("");
+        }
+
+        // 前置条件 - 1. 搜索的用户如果不存在，返回[无此用户]
+        // 前置条件 - 2. 搜索账号是你自己，返回[不能添加自己]
+        // 前置条件 - 3. 搜索的朋友已经是你的好友，返回[该用户已经是你的好友]
+        Integer status = userService.preconditionSearchFriends(userId, friendUsername);
+        if (status == SearchFriendsStatusEnum.SUCCESS.status) {
+            Users user = userService.queryUserInfoByUsername(friendUsername);
+            UsersVO userVO = new UsersVO();
+            BeanUtils.copyProperties(user, userVO);
+            return StarJSONResult.ok(userVO);
+        } else {
+            String errorMsg = SearchFriendsStatusEnum.getMsgByKey(status);
+            return StarJSONResult.errorMsg(errorMsg);
+        }
+    }
+    /**
+     * @Description: 发送添加好友的请求
+     */
+    @PostMapping("/addFriendRequest")
+    public StarJSONResult addFriendRequest(String myUserId, String friendUsername)
+            throws Exception {
+
+        // 0. 判断 myUserId friendUsername 不能为空
+        if (StringUtils.isBlank(myUserId)
+                || StringUtils.isBlank(friendUsername)) {
+            return StarJSONResult.errorMsg("");
+        }
+
+        // 前置条件 - 1. 搜索的用户如果不存在，返回[无此用户]
+        // 前置条件 - 2. 搜索账号是你自己，返回[不能添加自己]
+        // 前置条件 - 3. 搜索的朋友已经是你的好友，返回[该用户已经是你的好友]
+        Integer status = userService.preconditionSearchFriends(myUserId, friendUsername);
+        if (status == SearchFriendsStatusEnum.SUCCESS.status) {
+            userService.sendFriendRequest(myUserId, friendUsername);
+        } else {
+            String errorMsg = SearchFriendsStatusEnum.getMsgByKey(status);
+            return StarJSONResult.errorMsg(errorMsg);
+        }
+
+        return StarJSONResult.ok();
     }
 }

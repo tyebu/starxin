@@ -15,4 +15,10 @@ public interface UserService {
     Users saveUser(Users users) throws Exception;
 
     Users updateUserInfo(Users users) throws  Exception;
+
+    Integer preconditionSearchFriends(String userId, String friendUsername);
+
+    Users queryUserInfoByUsername(String friendUsername);
+
+    void sendFriendRequest(String myUserId, String friendUsername);
 }
