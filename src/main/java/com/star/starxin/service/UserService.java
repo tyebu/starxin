@@ -1,6 +1,9 @@
 package com.star.starxin.service;
 
 import com.star.starxin.pojo.Users;
+import com.star.starxin.pojo.vo.FriendRequestVO;
+
+import java.util.List;
 
 /**
  * @author Star
@@ -21,4 +24,6 @@ public interface UserService {
     Users queryUserInfoByUsername(String friendUsername);
 
     void sendFriendRequest(String myUserId, String friendUsername);
+
+    List<FriendRequestVO> queryFriendRequestList(String acceptName);
 }

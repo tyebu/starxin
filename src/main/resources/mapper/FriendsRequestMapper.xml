@@ -10,4 +10,21 @@
     <result column="accept_user_id" jdbcType="VARCHAR" property="acceptUserId" />
     <result column="request_date_time" jdbcType="TIMESTAMP" property="requestDateTime" />
   </resultMap>
+
+  <select id="queryFriendRequestList" resultType="com.star.starxin.pojo.vo.FriendRequestVO"
+          parameterType="String">
+		select
+			sender.id as sendUserId,
+			sender.username as sendUsername,
+			sender.face_image as sendFaceImage,
+			sender.nickname as sendNickname
+		from
+			friends_request fr
+		left join
+			users sender
+		on
+			fr.send_user_id = sender.id
+		where
+			fr.accept_user_id = #{acceptUserId}
+	</select>
 </mapper>

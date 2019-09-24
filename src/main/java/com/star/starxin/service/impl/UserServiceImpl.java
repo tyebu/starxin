@@ -7,6 +7,7 @@ import com.star.starxin.mapper.UsersMapper;
 import com.star.starxin.pojo.FriendsRequest;
 import com.star.starxin.pojo.MyFriends;
 import com.star.starxin.pojo.Users;
+import com.star.starxin.pojo.vo.FriendRequestVO;
 import com.star.starxin.service.UserService;
 import com.star.starxin.utils.FastDFSClient;
 import com.star.starxin.utils.FileUtils;
@@ -22,6 +23,7 @@ import tk.mybatis.mapper.entity.Example;
 import tk.mybatis.mapper.entity.Example.Criteria;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Star
@@ -130,9 +132,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void sendFriendRequest(String myUserId, String friendUsername) {
-// 根据用户名把朋友信息查询出来
+        // 根据用户名把朋友信息查询出来
         Users friend = queryUserInfoByUsername(friendUsername);
-
         // 1. 查询发送好友请求记录表
         Example fre = new Example(FriendsRequest.class);
         Criteria frc = fre.createCriteria();
@@ -150,6 +151,12 @@ public class UserServiceImpl implements UserService {
             request.setRequestDateTime(new Date());
             friendsRequestMapper.insert(request);
         }
+    }
+
+    @Override
+    public List<FriendRequestVO> queryFriendRequestList(String acceptUserId) {
+        List<FriendRequestVO> friendRequestList = friendsRequestMapper.queryFriendRequestList(acceptUserId);
+        return friendRequestList;
     }
 
     private Users selectUserById(String userId) {

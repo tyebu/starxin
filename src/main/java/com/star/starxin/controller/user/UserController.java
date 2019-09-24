@@ -1,9 +1,11 @@
 package com.star.starxin.controller.user;
 
 import com.alibaba.fastjson.JSON;
+import com.star.starxin.enums.OperatorFriendRequestTypeEnum;
 import com.star.starxin.enums.SearchFriendsStatusEnum;
 import com.star.starxin.pojo.Users;
 import com.star.starxin.pojo.bo.UsersBO;
+import com.star.starxin.pojo.vo.FriendRequestVO;
 import com.star.starxin.pojo.vo.UsersVO;
 import com.star.starxin.service.UserService;
 import com.star.starxin.utils.*;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * @author Star
@@ -170,5 +174,46 @@ public class UserController {
         }
 
         return StarJSONResult.ok();
+    }
+    /**
+     * @Description: 查询好友请求列表
+     */
+    @PostMapping("/queryFriendRequest")
+    public StarJSONResult queryFriendRequest(String userId) {
+        List<FriendRequestVO> friendRequestVVOList = userService.queryFriendRequestList(userId);
+        return StarJSONResult.ok(friendRequestVVOList);
+    }
+    /**
+     * @Description: 接受方 通过或者忽略朋友请求
+     */
+    @PostMapping("/operFriendRequest")
+    public StarJSONResult operFriendRequest(String acceptUserId, String sendUserId,
+                                             Integer operType) {
+
+        // 0. acceptUserId sendUserId operType 判断不能为空
+        if (StringUtils.isBlank(acceptUserId)
+                || StringUtils.isBlank(sendUserId)
+                || operType == null) {
+            return StarJSONResult.errorMsg("");
+        }
+
+        // 1. 如果operType 没有对应的枚举值，则直接抛出空错误信息
+        if (StringUtils.isBlank(OperatorFriendRequestTypeEnum.getMsgByType(operType))) {
+            return StarJSONResult.errorMsg("");
+        }
+
+        if (operType == OperatorFriendRequestTypeEnum.IGNORE.type) {
+            // 2. 判断如果忽略好友请求，则直接删除好友请求的数据库表记录
+            userService.deleteFriendRequest(sendUserId, acceptUserId);
+        } else if (operType == OperatorFriendRequestTypeEnum.PASS.type) {
+            // 3. 判断如果是通过好友请求，则互相增加好友记录到数据库对应的表
+            //	   然后删除好友请求的数据库表记录
+            userService.passFriendRequest(sendUserId, acceptUserId);
+        }
+
+        // 4. 数据库查询好友列表
+        List<MyFriendsVO> myFirends = userService.queryMyFriends(acceptUserId);
+
+        return IMoocJSONResult.ok(myFirends);
     }
 }
