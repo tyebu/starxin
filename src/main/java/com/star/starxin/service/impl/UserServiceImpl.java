@@ -159,6 +159,41 @@ public class UserServiceImpl implements UserService {
         return friendRequestList;
     }
 
+    @Override
+    public void deleteFriendRequest(String sendUserId, String acceptUserId) {
+        Example fre = new Example(FriendsRequest.class);
+        Criteria frc = fre.createCriteria();
+        frc.andEqualTo("sendUserId", sendUserId);
+        frc.andEqualTo("acceptUserId", acceptUserId);
+        friendsRequestMapper.deleteByExample(fre);
+    }
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public void passFriendRequest(String sendUserId, String acceptUserId) {
+        saveFriends(sendUserId, acceptUserId);
+        saveFriends(acceptUserId, sendUserId);
+        deleteFriendRequest(sendUserId, acceptUserId);
+
+        /*Channel sendChannel = UserChannelRel.get(sendUserId);
+        if (sendChannel != null) {
+            // 使用websocket主动推送消息到请求发起者，更新他的通讯录列表为最新
+            DataContent dataContent = new DataContent();
+            dataContent.setAction(MsgActionEnum.PULL_FRIEND.type);
+
+            sendChannel.writeAndFlush(
+                    new TextWebSocketFrame(
+                            JsonUtils.objectToJson(dataContent)));
+        }*/
+    }
+    private void saveFriends(String sendUserId, String acceptUserId) {
+        MyFriends myFriends = new MyFriends();
+        String recordId = sid.nextShort();
+        myFriends.setId(recordId);
+        myFriends.setMyFriendUserId(acceptUserId);
+        myFriends.setMyUserId(sendUserId);
+        myFriendsMapper.insert(myFriends);
+    }
+
     private Users selectUserById(String userId) {
         Users users = usersMapper.selectByPrimaryKey(userId);
         return users;

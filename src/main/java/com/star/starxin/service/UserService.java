@@ -26,4 +26,8 @@ public interface UserService {
     void sendFriendRequest(String myUserId, String friendUsername);
 
     List<FriendRequestVO> queryFriendRequestList(String acceptName);
+
+    void deleteFriendRequest(String sendUserId, String acceptUserId);
+
+    void passFriendRequest(String sendUserId, String acceptUserId);
 }

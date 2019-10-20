@@ -212,8 +212,8 @@ public class UserController {
         }
 
         // 4. 数据库查询好友列表
-        List<MyFriendsVO> myFirends = userService.queryMyFriends(acceptUserId);
+//        List<MyFriendsVO> myFirends = userService.queryMyFriends(acceptUserId);
 
-        return IMoocJSONResult.ok(myFirends);
+        return StarJSONResult.ok();
     }
 }
