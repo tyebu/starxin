@@ -2,6 +2,7 @@ package com.star.starxin.service;
 
 import com.star.starxin.pojo.Users;
 import com.star.starxin.pojo.vo.FriendRequestVO;
+import com.star.starxin.pojo.vo.MyFriendsVO;
 
 import java.util.List;
 
@@ -30,4 +31,6 @@ public interface UserService {
     void deleteFriendRequest(String sendUserId, String acceptUserId);
 
     void passFriendRequest(String sendUserId, String acceptUserId);
+
+    List<MyFriendsVO> queryMyFriends(String userId) throws Exception;
 }

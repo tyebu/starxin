@@ -1,5 +1,6 @@
 package com.star.starxin.service.impl;
 
+import com.alibaba.druid.util.StringUtils;
 import com.star.starxin.enums.SearchFriendsStatusEnum;
 import com.star.starxin.mapper.FriendsRequestMapper;
 import com.star.starxin.mapper.MyFriendsMapper;
@@ -8,10 +9,9 @@ import com.star.starxin.pojo.FriendsRequest;
 import com.star.starxin.pojo.MyFriends;
 import com.star.starxin.pojo.Users;
 import com.star.starxin.pojo.vo.FriendRequestVO;
+import com.star.starxin.pojo.vo.MyFriendsVO;
 import com.star.starxin.service.UserService;
-import com.star.starxin.utils.FastDFSClient;
-import com.star.starxin.utils.FileUtils;
-import com.star.starxin.utils.QRCodeUtils;
+import com.star.starxin.utils.*;
 import org.n3r.idworker.Sid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -185,6 +185,15 @@ public class UserServiceImpl implements UserService {
                             JsonUtils.objectToJson(dataContent)));
         }*/
     }
+
+    @Override
+    public List<MyFriendsVO> queryMyFriends(String userId) throws Exception{
+        if(StringUtils.isEmpty(userId)) {
+            throw new CommonException(ResponseMessage.ERROR);
+        }
+        return myFriendsMapper.queryMyFriends(userId);
+    }
+
     private void saveFriends(String sendUserId, String acceptUserId) {
         MyFriends myFriends = new MyFriends();
         String recordId = sid.nextShort();

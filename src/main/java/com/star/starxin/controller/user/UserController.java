@@ -6,6 +6,7 @@ import com.star.starxin.enums.SearchFriendsStatusEnum;
 import com.star.starxin.pojo.Users;
 import com.star.starxin.pojo.bo.UsersBO;
 import com.star.starxin.pojo.vo.FriendRequestVO;
+import com.star.starxin.pojo.vo.MyFriendsVO;
 import com.star.starxin.pojo.vo.UsersVO;
 import com.star.starxin.service.UserService;
 import com.star.starxin.utils.*;
@@ -19,6 +20,7 @@ import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -210,10 +212,24 @@ public class UserController {
             //	   然后删除好友请求的数据库表记录
             userService.passFriendRequest(sendUserId, acceptUserId);
         }
-
+        List<MyFriendsVO> myFirends = new ArrayList<>();
         // 4. 数据库查询好友列表
-//        List<MyFriendsVO> myFirends = userService.queryMyFriends(acceptUserId);
+        try {
+            myFirends = userService.queryMyFriends(acceptUserId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        return StarJSONResult.ok();
+        return StarJSONResult.ok(myFirends);
+    }
+    @PostMapping("/getFriendsList")
+    public StarJSONResult getFriendsList(String userId) {
+        try {
+            List<MyFriendsVO> myFriends = userService.queryMyFriends(userId);
+            return StarJSONResult.ok(myFriends);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return StarJSONResult.errorMsg(ResponseMessage.ERROR);
+        }
     }
 }
