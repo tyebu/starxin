@@ -1,5 +1,6 @@
 package com.star.starxin.service;
 
+import com.star.starxin.netty.ChatMsg;
 import com.star.starxin.pojo.Users;
 import com.star.starxin.pojo.vo.FriendRequestVO;
 import com.star.starxin.pojo.vo.MyFriendsVO;
@@ -33,4 +34,18 @@ public interface UserService {
     void passFriendRequest(String sendUserId, String acceptUserId);
 
     List<MyFriendsVO> queryMyFriends(String userId) throws Exception;
+
+    /**
+     * 保存聊天消息到数据库
+     * @param chatMsg
+     * @return
+     * @throws Exception
+     */
+    String saveMsg(ChatMsg chatMsg) throws Exception;
+
+    /**
+     * 消息批量签收
+     * @param msgIdList
+     */
+    void updateMsgListSigned(List<String> msgIdList);
 }

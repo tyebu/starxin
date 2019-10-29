@@ -1,10 +1,13 @@
 package com.star.starxin.service.impl;
 
 import com.alibaba.druid.util.StringUtils;
+import com.star.starxin.enums.MsgSignFlagEnum;
 import com.star.starxin.enums.SearchFriendsStatusEnum;
+import com.star.starxin.mapper.ChatMsgMapper;
 import com.star.starxin.mapper.FriendsRequestMapper;
 import com.star.starxin.mapper.MyFriendsMapper;
 import com.star.starxin.mapper.UsersMapper;
+import com.star.starxin.netty.ChatMsg;
 import com.star.starxin.pojo.FriendsRequest;
 import com.star.starxin.pojo.MyFriends;
 import com.star.starxin.pojo.Users;
@@ -46,6 +49,8 @@ public class UserServiceImpl implements UserService {
     private MyFriendsMapper myFriendsMapper;
     @Autowired
     private FriendsRequestMapper friendsRequestMapper;
+    @Autowired
+    private ChatMsgMapper chatMsgMapper;
     @Override
     public boolean selectUsername(String username) {
         Users users = new Users();
@@ -192,6 +197,33 @@ public class UserServiceImpl implements UserService {
             throw new CommonException(ResponseMessage.ERROR);
         }
         return myFriendsMapper.queryMyFriends(userId);
+    }
+
+    /**
+     * 保存聊天消息
+     * @param chatMsg
+     * @return
+     * @throws Exception
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public String saveMsg(ChatMsg chatMsg) throws Exception {
+        // 初始化
+        com.star.starxin.pojo.ChatMsg chatMsg2 = new com.star.starxin.pojo.ChatMsg(
+                sid.nextShort(),  chatMsg.getSenderId(), chatMsg.getReceiverId(), chatMsg.getMsg(),
+                MsgSignFlagEnum.unsign.type, new Date()
+        );
+        chatMsgMapper.insertUseGeneratedKeys(chatMsg2);
+        return null;
+    }
+
+    /**
+     * 消息批量签收
+     * @param msgIdList
+     */
+    @Override
+    public void updateMsgListSigned(List<String> msgIdList) {
+        chatMsgMapper.batchMsgIdListSign(msgIdList);
     }
 
     private void saveFriends(String sendUserId, String acceptUserId) {

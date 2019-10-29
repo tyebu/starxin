@@ -16,10 +16,22 @@ public class ChatMsg {
 
     private String msg;
 
+    public ChatMsg() {
+    }
+
+    public ChatMsg(String id, String sendUserId, String acceptUserId, String msg, Integer signFlag, Date createTime) {
+        this.id = id;
+        this.sendUserId = sendUserId;
+        this.acceptUserId = acceptUserId;
+        this.msg = msg;
+        this.signFlag = signFlag;
+        this.createTime = createTime;
+    }
+
     /**
      * 消息是否签收状态
-1：签收
-0：未签收
+        1：签收
+        0：未签收
 
      */
     @Column(name = "sign_flag")
