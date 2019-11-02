@@ -1,6 +1,8 @@
 package com.star.starxin.service.impl;
 
 import com.alibaba.druid.util.StringUtils;
+import com.alibaba.fastjson.JSON;
+import com.star.starxin.enums.MsgActionEnum;
 import com.star.starxin.enums.MsgSignFlagEnum;
 import com.star.starxin.enums.SearchFriendsStatusEnum;
 import com.star.starxin.mapper.ChatMsgMapper;
@@ -8,6 +10,8 @@ import com.star.starxin.mapper.FriendsRequestMapper;
 import com.star.starxin.mapper.MyFriendsMapper;
 import com.star.starxin.mapper.UsersMapper;
 import com.star.starxin.netty.ChatMsg;
+import com.star.starxin.netty.DataContent;
+import com.star.starxin.netty.UserChannelRel;
 import com.star.starxin.pojo.FriendsRequest;
 import com.star.starxin.pojo.MyFriends;
 import com.star.starxin.pojo.Users;
@@ -15,6 +19,8 @@ import com.star.starxin.pojo.vo.FriendRequestVO;
 import com.star.starxin.pojo.vo.MyFriendsVO;
 import com.star.starxin.service.UserService;
 import com.star.starxin.utils.*;
+import io.netty.channel.Channel;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.n3r.idworker.Sid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -178,7 +184,13 @@ public class UserServiceImpl implements UserService {
         saveFriends(sendUserId, acceptUserId);
         saveFriends(acceptUserId, sendUserId);
         deleteFriendRequest(sendUserId, acceptUserId);
-
+        Channel channel = UserChannelRel.get(sendUserId);
+        if(channel != null) {
+            // 使用websocket主动更新通讯录列表
+            DataContent dataContent = new DataContent();
+            dataContent.setAction(MsgActionEnum.PULL_FRIEND.type);
+            channel.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(dataContent)));
+        }
         /*Channel sendChannel = UserChannelRel.get(sendUserId);
         if (sendChannel != null) {
             // 使用websocket主动推送消息到请求发起者，更新他的通讯录列表为最新
@@ -213,8 +225,8 @@ public class UserServiceImpl implements UserService {
                 sid.nextShort(),  chatMsg.getSenderId(), chatMsg.getReceiverId(), chatMsg.getMsg(),
                 MsgSignFlagEnum.unsign.type, new Date()
         );
-        chatMsgMapper.insertUseGeneratedKeys(chatMsg2);
-        return null;
+        chatMsgMapper.insert(chatMsg2);
+        return chatMsg2.getId();
     }
 
     /**

@@ -87,7 +87,7 @@ public class UserController {
         // 获取前台传来的base64字符串
         String faceData = userBO.getFaceData();
         String imgName = userBO.getUserId();
-        String imgPath  ="H:\\" + imgName + "userBase64.png";
+        String imgPath  ="E:\\" + imgName + "userBase64.png";
         Users userResult = new Users();
         try {
             FileUtils.base64ToFile(imgPath, faceData);

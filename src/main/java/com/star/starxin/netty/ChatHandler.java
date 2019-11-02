@@ -62,6 +62,8 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
             UserService userService = (UserService) SpringUtil.getBean("userServiceImpl");
             String msgId = userService.saveMsg(chatMsg);
             chatMsg.setMsgId(msgId);
+            DataContent resData = new DataContent();
+            resData.setChatMsg(chatMsg);
             // 从全局channel获取接收方的channel
             Channel receiverChannel = UserChannelRel.get(receiverId);
             if(receiverChannel == null) {
@@ -72,7 +74,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
                 Channel findChannel = clients.find(receiverChannel.id());
                 if(findChannel != null) {
                     // 用户在线
-                    receiverChannel.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(chatMsg)));
+                    receiverChannel.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(resData)));
                 } else {
                     // todo 用户离线状态
                 }
@@ -83,6 +85,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
             // 获取消息的id
             String msgIdStr = dataContent.getExpand();
             List<String> msgIdList = new ArrayList<>();
+
             String[] msgIds = msgIdStr.split(",");
             if(StringUtils.isBlank(msgIdStr) || msgIds.length == 0) {
                 return;
